@@ -1,0 +1,162 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Bowling Tests</title>
+ 	<style type="text/css">
+	
+	.game {			display: block; 
+					clear: both;
+					border: 1px solid black;
+	}
+	
+	.frame { 	
+					float: left;
+					position: relative;
+					margin: 5px 7px 5px 0px; 
+					padding: 2px 2px 2px 0px; 
+					border: 1px solid black;
+	}
+	
+	div.frameNumber { 
+					position: relative;
+					width: 120px; 
+					padding: 3px;
+					text-align: center;
+					border: 1px solid black;
+	}
+	
+	div.frameNumberTenth { 
+					position: relative;
+					width: 180px; 
+					padding: 3px;
+					text-align: middle;
+					border: 1px solid black;
+	}
+	
+	div.firstRoll {		
+					float: left;  
+					width: 60px; 
+					padding: 3px; 
+					text-align: center;
+					border: 1px solid black;
+	}
+	
+	div.secondRoll { 	
+					float: left;  
+					width: 60px; 
+					padding: 3px; 
+					text-align: center;
+					border: 1px solid black;
+	}
+	
+	div.thirdRoll { 	
+					float: left;  
+					width: 60px; 
+					padding: 3px; 
+					text-align: center;
+					border: 1px solid black;
+	}
+	
+	div.runningScore { 
+					position: relative;
+					width: 120px; 
+					padding: 3px;
+					text-align: center;
+					border: 1px solid black;
+	}
+	
+	div.runningScoreTenth { 
+					position: relative;
+					width: 180px; 
+					padding: 3px;
+					text-align: middle;
+					border: 1px solid black;
+	}
+	
+	.clearfix:after {
+	                content: ".";
+	                display: block;
+	                clear: both;
+	                visibility: hidden;
+	                line-height: 0;
+	                height: 0;
+    }
+    .clearfix {	   	display: inline-block;
+    }
+    html[xmlns] .clearfix {
+        			display: block;
+    }
+    * html .clearfix {
+        			height: 1%;
+    }
+     
+</style>
+
+</head>
+<body>
+ 	<div id="game" class="game">
+	</div>
+	
+	<script src="bowling.js"></script>
+	<script>
+		/* var bowling = new Bowling();
+		bowling.roll(3);
+		bowling.getFrame(bowling.getFramesPlayed()).asHtml();
+		bowling.roll(5);
+		bowling.getFrame(bowling.getFramesPlayed()).asHtml();
+		bowling.roll(9);
+		bowling.getFrame(bowling.getFramesPlayed()).asHtml();
+ */
+		/* var bowling = new Bowling([10,10,5,3,2,8,10,10,10,10,10,10,10,10]);
+		for (var i = 1; i <= bowling.getFramesPlayed(); i++) {
+			bowling.getFrame(bowling.getFrame(i).asHtml());
+		} */
+		var bowling = new Bowling();
+		bowling.roll();
+		bowling.getFrame(bowling.getFramesPlayed()).asHtml(1);
+		while (bowling.getFramesPlayed() < 10 || !bowling.getFrame(bowling.getFramesPlayed()).getComplete()) {
+			//alert(bowling.getFrame(bowling.getFramesPlayed()).getComplete());
+			bowling.roll();
+			for (var i = 1; i <= bowling.getFramesPlayed(); i++) {
+				bowling.getFrame(i).asHtml(bowling.getFramesPlayed());
+			}
+		}
+	</script>
+	<!-- <div id="game1" class="game">
+		<div id="frame1" class="frame">
+			<div class="runningScore">
+				1	
+			</div>
+				<div class="firstRoll">
+				1
+				</div>
+				<div class="secondRoll">
+				2
+				</div>
+			<div class="runningScore">
+				3	
+			</div>
+			
+		</div>
+		<div id="frame2" class="frame">
+			<div class="runningScore">
+				2	
+			</div>
+			<div class="clearfix">
+				<div class="firstRoll">
+				1
+				</div>
+				<div class="secondRoll">
+				2
+				</div>
+			</div>
+			<div class="runningScore">
+				6	
+			</div>
+			
+		</div>
+	</div> -->
+	
+
+</body>
+</html>

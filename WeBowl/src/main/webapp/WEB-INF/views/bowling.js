@@ -161,6 +161,192 @@ function Frame() {
 		
 		return 0;
 	};
+	
+	this.equals = function(that) {
+		if (!(that instanceof Frame)) {
+			return 0;
+		} 
+		
+		if (frameNumber != that.getFrameNumber()) {
+			return 0;
+		}
+			
+		if (!firstRoll) {
+			if (that.getFirstRoll()) {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		if (firstRoll != that.getFirstRoll()) {
+			return 0;
+		}
+		
+		if (!secondRoll) {
+			if (that.getSecondRoll()) {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		if (secondRoll != that.getSecondRoll()) {
+			return 0;
+		}
+		
+		if (score != that.getScore()) {
+			return 0;
+		}
+		
+		if (runningScore != that.getRunningScore()) {
+			return 0;
+		}
+		
+		if (!extraRoll) {
+			if (that.getExtraRoll()) {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+		
+		return 1;
+	} ;
+	
+	this.asHtml = function() {
+		var gameId = "game";
+		if(arguments.length == 1) {
+			gameId += arguments[0]; 
+		}
+		
+		var game = document.getElementById(gameId);
+		if (!game) {
+			game = createElement("div");
+			game.id = gameId;
+			game.className = "game";
+			
+			document.body.appendChild(game);
+		}
+		var frameId = "frame" + frameNumber;
+		if(arguments.length == 1) {
+			frameId += "-";
+			frameId += arguments[0];
+		}		
+		var frame = document.getElementById(frameId);
+		if (!frame) {
+			frame = createElement("div");
+			frame.id = frameId;
+			frame.className = "frame";
+			
+			game.appendChild(frame);
+		}
+		
+		var html = '';
+		if (this.isTenthFrame()) {
+			html += '<div class="frameNumberTenth">';
+			html += frameNumber;
+			html += '</div>';	
+			
+			html += '<div class="firstRoll">';
+			if (firstRoll == 10) {
+				html += "X";
+			} else {
+				html += firstRoll;
+			}
+			html += '</div>';
+			
+			html += '<div class="secondRoll">';
+			if (secondRoll == null) {
+				html += "&nbsp;";
+				html += '</div>';
+				
+				html += '<div class="thirdRoll">&nbsp;</div>';
+			} else {
+				if (secondRoll == 10) {
+					html += "X";
+				} else {
+					html += secondRoll;
+				}
+				html += '</div>';
+				
+				html += '<div class="thirdRoll">';
+				if (this.isStrike() || this.isSpare()) {
+					if (extraRoll == null) {
+						html += "&nbsp;";
+					} else if (extraRoll == 10) {
+						html += "X";
+					} else {
+						html += extraRoll;
+					}
+				} else {
+					html += "-";
+				}
+				html += '</div>';
+			}
+			html += '<div class="runningScoreTenth">';
+			html += runningScore;
+			html += '</div>';
+		} else {
+			html += '<div class="frameNumber">';
+			html += frameNumber;
+			html += '</div>';	
+			
+			if (this.isStrike()) {
+				html += '<div class="firstRoll">';
+				html += "&nbsp;";
+				html += '</div>';
+					
+				html += '<div class="secondRoll">';
+				html += "X";
+				html += '</div>';
+			} else if (this.isSpare()){
+				html += '<div class="firstRoll">';
+				html += firstRoll;
+				html += '</div>';
+					
+				html += '<div class="secondRoll">';
+				html += "/";
+				html += '</div>';
+			} else {
+				html += '<div class="firstRoll">';
+				html += firstRoll;
+				html += '</div>';
+					
+				html += '<div class="secondRoll">';
+				if(secondRoll == null) {
+					html += "&nbsp;";
+				} else {
+					html += secondRoll;
+				}
+				html += '</div>';
+			}
+		
+			html += '<div class="runningScore">';
+			html += runningScore;
+			html += '</div>';
+		}
+		
+		frame.innerHTML = html;
+	};
+	
+	if (arguments.length == 6) {
+		frameNumber = arguments[0];
+		firstRoll = arguments[1];
+		secondRoll = arguments[2];
+		extraRoll = arguments[3];
+		score = arguments[4];
+		runningScore = arguments[5];
+		
+		if(this.isTenthFrame() && this.allowExtraRoll()) {
+			if (extraRoll) {
+				complete = 1;
+			}
+		}
+		else if (this.isStrike()) {
+			complete = 1;
+		} else if (secondRoll){
+			complete = 1;
+		}
+	}
 }
 
 function Bowling() {
@@ -184,11 +370,11 @@ function Bowling() {
 			return null;
 		}
 		
-		if (i < 0) {
+		if (i < 1) {
 			return null;
 		}
 		
-		if (i >= frames.length) {
+		if (i > frames.length) {
 			return null;
 		}
 		
@@ -302,7 +488,7 @@ function Bowling() {
 			this.updateRunningScore(frame);
 		} else if (frame.getSecondRoll() == null) {
 			var scale = 11 - frame.getScore();
-			if (frame.allowExtraRoll) {
+			if (frame.allowExtraRoll()) {
 				scale = 11;
 			}
 			var pinsKnocked = Math.floor(Math.random() * scale);
@@ -334,13 +520,96 @@ function Bowling() {
 		
 		return 1;
 	};
+	
+	if (arguments.length == 1 && Array.isArray(arguments[0])) {
+		for (var i = 0; i < arguments[0].length; i++) {
+			this.roll(arguments[0][i]);
+		}
+	} else if (arguments.length == 2 || arguments.length == 3) {
+		if (arguments[0] <= 1) {
+			return null;
+		}
+		if (arguments[0] > 10) {
+			return null;
+		}
+		
+		var score = arguments[1];
+		if (arguments.length == 2) {
+			arguments.push(0); 
+		}	
+		score += arguments[2];
+		if (score > 10) {
+			return null;
+		}
+		
+		var framesPlayed = this.getFramesPlayed();
+		if (framesPlayed < arguments[0]) {
+			var i = arguments[0];
+			while (i > framesPlayed + 1 && this.getFrame(framesPlayed).getCompleted()) {
+				this.roll(0);
+				framesPlayed = this.getFramesPlayed();
+			}
+			
+			frames.roll(arguments[1]);
+			if (!this.getFrame(arguments[0]).isStrike()) {
+				this.roll(arguments[2]);
+			}
+		} else {
+			var newBowling = new Bowling();
+			if (arguments[0] > 1) {
+				newBowling.setFrames(frames.slice(0, arguments[0]));
+			}
+			
+			newBowling.roll(arguments[1]);
+			if (!this.getFrame(arguments[0]).getComplete()) {
+				newBowling.roll(arguments[2]);
+			}
+			
+			for (var i =  newBowling.getFramesPlayed() + 1; i < this.getFramesPlayed(); i++) {
+				var frameToCopy = this.getFrame(i);
+				newBowling.roll(frameToCopy.getFirstRoll());
+				if (!newBowling.getCompleted()) {
+					newBowling.roll(frameToCopy.getSecondRoll());
+				}
+				if (!newBowling.getCompleted()) {
+					newBowling.roll(frameToCopy.getExtraRoll());
+				}
+			}
+		}
+	}
 }
 
+//'Overload' function for different browsers
+function createElement(){}
+(function() {
+	try {
+		var el = document.createElement('<div name="testbrowser">');
+		if( 'DIV'!= el.tagName ||'foo'!= el.name ){
+			throw 'Create Element Error';
+		}
+		createElement = function(tag) {
+  			// IE
+  			return document.createElement('<' + tag + '></' + tag + '>');
+		};
+	} catch(e) {
+		createElement = function(tag) {
+			// EOMB
+			var el = document.createElement(tag);
+			
+			return el;
+		};
+	}
+}
+)();
+/*
 var frames = [{first: 9, second: 2}];
 var bowling = new Bowling();
-var frame = new Frame();
 
-alert(frame.getFirstRoll(frame.setFirstRoll(10)));
+var frame1 = new Frame();
+alert(frame1.getFirstRoll(frame1.setFirstRoll(10)));
+
+var frame2 = new Frame();
+alert(frame1.equals(frame2));
 
 bowling.roll(10);
 bowling.roll(5);
@@ -355,5 +624,10 @@ bowling.roll(0);
 bowling.roll(0);
 bowling.roll(0);
 bowling.roll(0);
-
 alert(bowling.getFramesPlayed());
+
+var bowlingWith2ndContructor = new Bowling([10,10,10]);
+alert(bowlingWith2ndContructor.getFramesPlayed());
+
+
+*/
